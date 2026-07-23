@@ -1,0 +1,166 @@
+{
+  "info": {
+    "name": "Stock Analysis Microservices",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "fetcherUrl",   "value": "http://localhost:8081" },
+    { "key": "analysisUrl",  "value": "http://localhost:8082" },
+    { "key": "patternUrl",   "value": "http://localhost:8083" },
+    { "key": "gatewayUrl",   "value": "http://localhost:8080" },
+    { "key": "symbol",       "value": "AAPL" }
+  ],
+  "item": [
+    {
+      "name": "1. Fetcher Service (8081)",
+      "item": [
+        {
+          "name": "Fetch Stock",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{fetcherUrl}}/stocks/fetch/{{symbol}}",
+              "host": ["{{fetcherUrl}}"],
+              "path": ["stocks", "fetch", "{{symbol}}"]
+            },
+            "description": "Fetches real-time stock data from Finnhub API and saves to fetcher_db. Results are cached for 10 minutes."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Analysis Service (8082)",
+      "item": [
+        {
+          "name": "Get Average Price",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{analysisUrl}}/analysis/average/{{symbol}}",
+              "host": ["{{analysisUrl}}"],
+              "path": ["analysis", "average", "{{symbol}}"]
+            },
+            "description": "Fetches latest price from Fetcher, saves to analysis_db, then returns the average across all saved records for this symbol."
+          }
+        },
+        {
+          "name": "Get Daily Change Percent",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{analysisUrl}}/analysis/changePercent/{{symbol}}",
+              "host": ["{{analysisUrl}}"],
+              "path": ["analysis", "changePercent", "{{symbol}}"]
+            },
+            "description": "Returns the daily change percentage: (change / price) * 100."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Pattern Service (8083)",
+      "item": [
+        {
+          "name": "Analyze Stock Pattern",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{patternUrl}}/patterns/analyze/{{symbol}}/1D",
+              "host": ["{{patternUrl}}"],
+              "path": ["patterns", "analyze", "{{symbol}}", "1D"]
+            },
+            "description": "Calls Analysis Service to get avg price and change %, detects Uptrend / Downtrend / Sideways, and saves the pattern to pattern_db."
+          }
+        },
+        {
+          "name": "Get Saved Patterns",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{patternUrl}}/patterns/{{symbol}}",
+              "host": ["{{patternUrl}}"],
+              "path": ["patterns", "{{symbol}}"]
+            },
+            "description": "Returns all previously detected patterns for the given symbol from pattern_db."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. API Gateway (8080)",
+      "item": [
+        {
+          "name": "Full Stock Analysis",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{gatewayUrl}}/stock/full-analysis/{{symbol}}",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["stock", "full-analysis", "{{symbol}}"]
+            },
+            "description": "Orchestrates all three services in one call. Returns stockData, averagePrice, dailyChangePercent, and pattern. Partial failures are captured per field (stockDataError, analysisError, patternError)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Other Symbols",
+      "item": [
+        {
+          "name": "Full Analysis - MSFT",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{gatewayUrl}}/stock/full-analysis/MSFT",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["stock", "full-analysis", "MSFT"]
+            }
+          }
+        },
+        {
+          "name": "Full Analysis - WMT",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{gatewayUrl}}/stock/full-analysis/WMT",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["stock", "full-analysis", "WMT"]
+            }
+          }
+        },
+        {
+          "name": "Full Analysis - IBM",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{gatewayUrl}}/stock/full-analysis/IBM",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["stock", "full-analysis", "IBM"]
+            }
+          }
+        },
+        {
+          "name": "Full Analysis - PEP",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{gatewayUrl}}/stock/full-analysis/PEP",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["stock", "full-analysis", "PEP"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

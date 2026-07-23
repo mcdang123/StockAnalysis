@@ -1,0 +1,74 @@
+services:
+  mysql:
+    image: mysql:8
+    container_name: stockanalysis-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-changeme}
+    ports:
+      - "3306:3306"
+    volumes:
+      - stockanalysis-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  stock_fetcher_service:
+    build: ./stock_fetcher_service
+    container_name: stock-fetcher-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/fetcher_db?createDatabaseIfNotExist=true
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-changeme}
+      FINNHUB_API_KEY: ${FINNHUB_API_KEY}
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  stock_analysis_service:
+    build: ./stock_analysis_service
+    container_name: stock-analysis-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/analysis_db?createDatabaseIfNotExist=true
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-changeme}
+      FETCHER_SERVICE_URL: http://stock_fetcher_service:8081/stocks/fetch/
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  stock_pattern_service:
+    build: ./stock_pattern_service
+    container_name: stock-pattern-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/pattern_db?createDatabaseIfNotExist=true
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-changeme}
+      ANALYSIS_SERVICE_URL: http://stock_analysis_service:8082/analysis/
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  stock_api_gateway:
+    build: ./stock_api_gateway
+    container_name: stock-api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      FETCHER_URL: http://stock_fetcher_service:8081
+      ANALYSIS_URL: http://stock_analysis_service:8082
+      PATTERN_URL: http://stock_pattern_service:8083
+    depends_on:
+      - stock_fetcher_service
+      - stock_analysis_service
+      - stock_pattern_service
+
+volumes:
+  stockanalysis-mysql-data:
