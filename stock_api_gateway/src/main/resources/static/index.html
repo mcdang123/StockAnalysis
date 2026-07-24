@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock Analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<div id="topBar">
+  <strong>Stock Analysis</strong>
+</div>
+
+<div class="main">
+
+  <!-- Search -->
+  <div class="panel" id="searchPanel">
+    <h3>Search a symbol</h3>
+    <form id="searchForm" class="search-row">
+      <input type="text" id="symbolInput" placeholder="e.g. AAPL" autocomplete="off" aria-label="Stock symbol">
+      <button type="submit" class="btn btn-primary" id="searchBtn" aria-label="Search">Search</button>
+    </form>
+  </div>
+
+  <!-- Recent searches -->
+  <div id="recentSearches" style="display:none;"></div>
+
+  <!-- Results -->
+  <div id="resultsSection">
+    <div class="empty-state" id="emptyState">Search a symbol to see analysis.</div>
+  </div>
+
+</div>
+
+<div id="toast-container"></div>
+
+<script src="/app.js"></script>
+</body>
+</html>
