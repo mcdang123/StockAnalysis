@@ -35,7 +35,7 @@ cp .env.example .env
 docker-compose up --build
 ```
 
-This starts MySQL and all 4 services. Once healthy, hit the gateway at `http://localhost:8080`.
+This starts MySQL and all 4 services. Once healthy, open `http://localhost:8080` for the web UI (search a ticker symbol to see price/change/average/pattern data), or hit the gateway's JSON API directly at `http://localhost:8080/stock/full-analysis/{symbol}`.
 
 ## Run locally without Docker
 
